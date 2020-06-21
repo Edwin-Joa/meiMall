@@ -69,6 +69,7 @@ class SmsCodeView(View):
 
         pl.execute()
 
+        # celery异步发送短信验证码，celery与redis之间会发生版本不匹配
         # CCP().send_template_sms('15173161429',[sms_code,5],1)
         ccp_send_sms_code.delay(mobile,sms_code)
 

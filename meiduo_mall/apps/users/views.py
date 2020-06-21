@@ -74,7 +74,10 @@ class RegisterView(View):
         # 状态保持，将user的信息通过session写入redis数据库，并sessionid存入cookie
         login(request,user)
         #响应结果
-        return JsonResponse({'code':0,'msg':'ok'})
+        response = JsonResponse({'code':0,'msg':'ok'})
+        response.set_cookie('username',user.username,max_age=3600*24*14)
+
+        return response
 
 
 class LoginView(View):
@@ -109,5 +112,8 @@ class LoginView(View):
         else:
             request.session.set_expiry(None)
 
-        return JsonResponse({'code':0,'msg':'ok'})
+        response = JsonResponse({'code':0,'msg':'ok'})
+        response.set_cookie('username',user.username,max_age=3600*24*14)
+
+        return response
 

@@ -1,10 +1,15 @@
 from django.shortcuts import render
 from django.views import View
 from django.http import JsonResponse
+from django_redis import get_redis_connection
 from .models import User
 import logging
+import json
+import re
+
 logger = logging.getLogger('django')
 # Create your views here.
+
 
 
 class UsernameCountView(View):
@@ -26,3 +31,51 @@ class MobileCountView(View):
             return JsonResponse({'code':400,'errmsg':'数据库访问失败'})
 
         return JsonResponse({'code':0,'errmsg':'ok','count':count})
+
+
+class RegisterView(View):
+    def post(self,request):
+        # 获取参数 前端采用json数据的传输方式
+        dict = json.loads(request.body.decode())
+
+        username = dict.get('username')
+        password = dict.get('password')
+        password2 = dict.get('password2')
+        mobile = dict.get('mobile')
+        image_code_client = dict.get('image_code')
+        sms_code_client = dict.get('sms_code')
+
+        redis_conn = get_redis_connection('verify_code')
+
+
+        # 校验参数
+        if not all([username,password,password2,mobile,image_code_client,sms_code_client]):
+            return JsonResponse({'code':400,'errmsg':'缺少必传参数'})
+
+        # 检验用户名
+        # 由于前端和路由匹配的过程中已经进行过正则匹配判断，所以这里对某些参数的校验可以省略
+
+
+        # 校验密码
+        if password != password2:
+            return JsonResponse({'code':400,'errmsg':'两次密码输入不同'})
+
+
+        # 校验手机号码
+
+
+        # 校验短信验证码
+        sms_code_server = redis_conn.get(f'sms_code_{mobile}')
+        sms_code_server = sms_code_server.decode()
+        if sms_code_client != sms_code_server:
+            return JsonResponse({'code':400,'errmsg':'短信验证码有误'})
+
+        # 将用户信息存入数据库
+        try:
+            user = User.objects.create_user(username=username,password=password,mobile=mobile)
+        except Exception as e:
+            logger.info('用户信息写入失败')
+
+        #响应结果
+        return JsonResponse({'code':0,'msg':'ok'})
+

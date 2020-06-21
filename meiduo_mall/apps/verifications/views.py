@@ -32,10 +32,10 @@ class SmsCodeView(View):
             return JsonResponse({'code':400,'errmsg':'缺少必传参数'})
 
         conn = get_redis_connection('verify_code')
-        image_code_server = conn.get(f'img_{uuid}')
+        image_code_server = conn.get(f'img_{uuid}').decode()
         flag = conn.get(f'{mobile}_flag')
 
-        image_code_server = image_code_server.decode()
+
 
         if flag:
             return JsonResponse({'code':400,'errmsg':'请勿频繁发送短信验证码'})
@@ -56,19 +56,18 @@ class SmsCodeView(View):
         except Exception as e:
             logger.info('sms_flag写入失败')
 
-        pl.execute()
-
         if image_code_client.lower() != image_code_server.lower():
             return JsonResponse({'code':400,'errmsg':'验证码错误'})
-
 
         sms_code = '%06d'%(randint(0,999999))
         logger.info('sms_code:',sms_code)
 
         try:
-            conn.setex(f'sms_code_{mobile}',300,sms_code)
+            pl.setex(f'sms_code_{mobile}',300,sms_code)
         except Exception as e:
             logger.info('手机验证码写入失败')
+
+        pl.execute()
 
         # CCP().send_template_sms('15173161429',[sms_code,5],1)
         ccp_send_sms_code.delay(mobile,sms_code)

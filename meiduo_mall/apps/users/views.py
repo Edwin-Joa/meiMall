@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import View
 from django.http import JsonResponse
 from django_redis import get_redis_connection
-from django.contrib.auth import login,authenticate
+from django.contrib.auth import login,authenticate,logout
 from .models import User
 import logging
 import json
@@ -116,4 +116,14 @@ class LoginView(View):
         response.set_cookie('username',user.username,max_age=3600*24*14)
 
         return response
+
+
+class LogoutView(View):
+    def delete(self,request):
+        logout(request)
+
+        response = JsonResponse({'code':0,'errmsg':'ok'})
+        response.delete_cookie('username')
+        return response
+
 

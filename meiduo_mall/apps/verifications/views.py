@@ -3,8 +3,8 @@ from django.views import View
 from django.http import JsonResponse,HttpResponse
 from django_redis import get_redis_connection
 from meiduo_mall.libs.captcha.captcha import captcha
-# from meiduo_mall.libs.yuntongxun.ccp_sms import CCP
-from celery_tasks.sms.tasks import ccp_send_sms_code
+from meiduo_mall.libs.yuntongxun.ccp_sms import CCP
+# from celery_tasks.sms.tasks import ccp_send_sms_code
 import logging
 from random import randint
 logger = logging.getLogger('django')
@@ -70,7 +70,7 @@ class SmsCodeView(View):
         pl.execute()
 
         # celery异步发送短信验证码，celery与redis之间会发生版本不匹配
-        # CCP().send_template_sms('15173161429',[sms_code,5],1)
-        ccp_send_sms_code.delay(mobile,sms_code)
+        CCP().send_template_sms('15173161429',[sms_code,5],1)
+        # ccp_send_sms_code.delay(mobile,sms_code)
 
         return JsonResponse({'code':0,'errmsg':'短信发送成功'})

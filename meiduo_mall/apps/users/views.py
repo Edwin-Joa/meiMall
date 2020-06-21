@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views import View
 from django.http import JsonResponse
 from django_redis import get_redis_connection
+from django.contrib.auth import login
 from .models import User
 import logging
 import json
@@ -75,6 +76,9 @@ class RegisterView(View):
             user = User.objects.create_user(username=username,password=password,mobile=mobile)
         except Exception as e:
             logger.info('用户信息写入失败')
+
+        # 状态保持，将user的信息通过session写入redis数据库，并sessionid存入cookie
+        login(request.user)
 
         #响应结果
         return JsonResponse({'code':0,'msg':'ok'})

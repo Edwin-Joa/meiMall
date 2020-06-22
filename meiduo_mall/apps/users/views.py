@@ -126,4 +126,18 @@ class LogoutView(View):
         response.delete_cookie('username')
         return response
 
+from meiduo_mall.utils.views import LoginRequiredMixin,my_decorator
+# from django.utils.decorators import method_decorator
+# from django.contrib.auth.mixins import LoginRequiredMixin
+
+class UserInfoView(LoginRequiredMixin,View):
+    def get(self,request):
+        print('用户中心函数')
+        response = JsonResponse({'code':0,'errmsg':'ok','info_data':{
+            'username':request.user.username,
+            'mobile':request.user.mobile,
+            'email':request.user.email
+        }})
+        return response
+
 

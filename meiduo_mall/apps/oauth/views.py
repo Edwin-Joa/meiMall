@@ -9,7 +9,7 @@ import logging,json,re
 logger = logging.getLogger('django')
 from apps.users.models import User
 from django.contrib.auth import login
-from oauth.utils import generate_access_token,check_access_token
+from .utils import generate_access_token,check_access_token
 # Create your views here.
 
 

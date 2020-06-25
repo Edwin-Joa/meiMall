@@ -7,6 +7,7 @@ from .models import User
 import logging
 import json
 import re
+from meiduo_mall.celery_tasks.email.tasks import send_verify_email
 
 logger = logging.getLogger('django')
 # Create your views here.
@@ -133,11 +134,54 @@ from meiduo_mall.utils.views import LoginRequiredMixin,my_decorator
 class UserInfoView(LoginRequiredMixin,View):
     def get(self,request):
         print('用户中心函数')
-        response = JsonResponse({'code':0,'errmsg':'ok','info_data':{
-            'username':request.user.username,
-            'mobile':request.user.mobile,
-            'email':request.user.email
-        }})
+        info_data = {
+            'username': request.user.username,
+            'mobile': request.user.mobile,
+            'email': request.user.email,
+            'email_active':request.user.email_active
+        }
+
+
+        response = JsonResponse({'code':0,'errmsg':'ok','info_data':info_data})
         return response
 
+
+class EmailView(View):
+    def put(self,request):
+        dict = json.loads(request.body.decode())
+        email = dict.get('email')
+        if not email:
+            return JsonResponse({'code':400,'errmsg':'缺少邮箱参数'})
+        if not re.match('^[a-z0-9A-Z]+[.-/]*[a-z0-9A-Z]+@[0-9a-zA-Z]+[.-/]*[a-zA-Z]+$',email):
+            return JsonResponse({'code':400,'errmsg':'邮箱格式错误'})
+        try:
+            request.user.email = email
+            request.user.save()
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'code':400,'errmsg':'添加邮箱失败'})
+
+        # email = '<' + email + '>'
+        verify_url = request.user.generate_verify_email_url()
+        send_verify_email.delay(email,verify_url)
+
+        return JsonResponse({'code':0,'errmsg':'添加邮箱成功'})
+
+
+class VerifyEmailView(View):
+    def put(self,request):
+        token = request.GET.get('token')
+        if not token:
+
+            return JsonResponse({'code':400,'errmsg':'缺少token'})
+        user = User.check_verify_email_token(token)
+        if not user:
+            return JsonResponse({'code':400,'errmsg':'无效的token'})
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            logger.error(e)
+            return JsonResponse({'code':400,'errmsg':'激活邮件失败'})
+        return JsonResponse({'code':0,'errmsg':'ok'})
 

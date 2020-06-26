@@ -229,6 +229,13 @@ EMAIL_FROM = '煤老板<edwin_joa@163.com>'
 
 EMAIL_VERIFY_URL = 'http://www.meiduo.site:8080/success_verify_email.html?token='
 
+
+# 该配置项，指定django使用的文件存储后端
+DEFAULT_FILE_STORAGE = "meiduo_mall.utils.fastdfs.fastdfs_storage.FastDFSStorage"
+
+# 自定义fdfs文件存储服务器的域名
+FDFS_URL = "http://image.meiduo.site:8888/"
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 

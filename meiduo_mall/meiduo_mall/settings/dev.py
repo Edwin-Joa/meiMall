@@ -238,6 +238,14 @@ DEFAULT_FILE_STORAGE = "meiduo_mall.utils.fastdfs.fastdfs_storage.FastDFSStorage
 # 自定义fdfs文件存储服务器的域名
 FDFS_URL = "http://image.meiduo.site:8888/"
 
+
+# 生成的静态 html 文件保存目录
+# 先获取 BASE_DIR 的绝对路径: 即 内层 meiduo_mall 的绝对路径
+# 然后截取最后一级, 即,获取父类的绝对路径.
+# 再截取一级, 拿到项目文件的绝对路径, 然后拼接上 'front_end_pc'
+GENERATED_STATIC_HTML_FILES_DIR = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'front_end_pc')
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 

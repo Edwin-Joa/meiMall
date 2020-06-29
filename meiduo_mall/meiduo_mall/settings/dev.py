@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 app_path = os.path.join(BASE_DIR,'apps')
 sys.path.insert(0,app_path)
-print(sys.path)
+# print(sys.path)
 
 
 # Quick-start development settings - unsuitable for production
@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.users',
     'corsheaders',
+    'haystack',
     'apps.verifications',
     'apps.oauth',
     'apps.areas',
@@ -245,6 +247,31 @@ FDFS_URL = "http://image.meiduo.site:8888/"
 # 再截取一级, 拿到项目文件的绝对路径, 然后拼接上 'front_end_pc'
 GENERATED_STATIC_HTML_FILES_DIR = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'front_end_pc')
 
+
+# 定时任务
+CRONJOBS = [
+    # 每一个元祖代表一个具体的任务
+    ('* * */1 * *','apps.contents.generate_index.generate_index_html','>>'+os.path.join(BASE_DIR,'logs/crontab.log'))
+]
+
+# 解决crontab中文的问题
+CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
+
+
+# haystack 配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://192.168.25.131:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
+        'INDEX_NAME': 'meiduo2', # Elasticsearch建立的索引库的名称
+    },
+}
+
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+# 定义haystack每页返回搜索结果数量
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

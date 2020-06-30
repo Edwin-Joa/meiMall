@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 app_path = os.path.join(BASE_DIR,'apps')
 sys.path.insert(0,app_path)
-# print(sys.path)
+print(sys.path)
 
 
 # Quick-start development settings - unsuitable for production
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'apps.oauth',
     'apps.areas',
     'apps.contents',
-    'apps.goods',
+    'goods',
 ]
 
 MIDDLEWARE = [
@@ -139,6 +139,13 @@ CACHES = {
             'CLIENT_CLASS':'django_redis.client.DefaultClient',
         }
     },
+    'history':{
+            'BACKEND':'django_redis.cache.RedisCache',
+            'LOCATION':'redis://127.0.0.1:6379/3',
+            'OPTIONS':{
+                'CLIENT_CLASS':'django_redis.client.DefaultClient',
+            }
+        },
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'

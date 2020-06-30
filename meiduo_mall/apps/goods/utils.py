@@ -1,9 +1,17 @@
+import os,sys
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'meiduo_mall.settings.dev')
+sys.path.insert(0, '/home/ubuntu/Desktop/meiMall/meiduo_mall')
+django.setup()
+
+
 from django.template import loader
 from django.conf import settings
-from .models import GoodsChannel,GoodsCategory,SKU,SKUImage,SKUSpecification,GoodsSpecification,SpecificationOption
+from goods.models import GoodsChannel,\
+    GoodsCategory,SKU,SKUImage,SKUSpecification,GoodsSpecification,SpecificationOption
 from collections import OrderedDict
-import os
 from copy import deepcopy
+
 
 def get_breadcrumb(category):
 
@@ -79,6 +87,8 @@ def get_categories():
             })
     return categories
 
+
+
 def get_goods_and_spec(sku_id):
 
     sku = SKU.objects.get(pk=sku_id)
@@ -87,6 +97,7 @@ def get_goods_and_spec(sku_id):
     cur_sku_options = []
     for temp in cur_sku_spec_options:
         cur_sku_options.append(temp.option_id)
+
     goods = sku.goods
     # 罗列出和当前sku同类的所有商品的选项和商品id的映射关系
     sku_options_mapping = {}
@@ -98,14 +109,8 @@ def get_goods_and_spec(sku_id):
             sku_options.append(temp.option_id)
         sku_options_mapping[tuple(sku_options)] = temp_sku.id
 
-
-
-
-
-
     sku.images = SKUImage.objects.filter(sku=sku)
 
-    goods = sku.goods
 
     specs = GoodsSpecification.objects.filter(goods=goods).order_by('id')
 
@@ -151,9 +156,16 @@ def generate_static_sku_detail_html(sku_id):
 
     # 写入静态文件
     file_path = os.path.join(
-        settings.GENERATED_STATIC_HTML_DIR,
+        settings.GENERATED_STATIC_HTML_FILES_DIR,
         'goods/' + str(sku_id) + '.html'
     )
     with open(file_path,'w',encoding='utf-8') as f:
         f.write(sku_html_text)
+
+
+if __name__ == '__main__':
+    skus = SKU.objects.all()
+    for sku in skus:
+        print(sku.id)
+        generate_static_sku_detail_html(sku.id)
 

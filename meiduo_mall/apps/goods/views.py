@@ -8,7 +8,6 @@ from haystack.views import SearchView
 # Create your views here.
 
 
-
 class ListView(View):
     def get(self,request,category_id):
 

@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import path,include,register_converter
 from meiduo_mall.utils.converters import UsernameConverter,MobileConverter,AreaConverter
 
-
 register_converter(UsernameConverter,'username')
 register_converter(MobileConverter,'mobile')
 register_converter(AreaConverter,'area')

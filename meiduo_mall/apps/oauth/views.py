@@ -10,6 +10,7 @@ logger = logging.getLogger('django')
 from apps.users.models import User
 from django.contrib.auth import login
 from .utils import generate_access_token,check_access_token
+from apps.carts.utils import merge_cart_cookie_to_redis
 # Create your views here.
 
 
@@ -98,5 +99,8 @@ class QQUserView(View):
         login(request,user)
         response = JsonResponse({'code':0,'errmsg':'ok'})
         response.set_cookie('username',user.username,max_age=3600*24*14)
+        response = merge_cart_cookie_to_redis(request=request,user=user,response=response)
+
+
         return response
 

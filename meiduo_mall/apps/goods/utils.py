@@ -1,13 +1,13 @@
-import os,sys
-import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'meiduo_mall.settings.dev')
-sys.path.insert(0, '/home/ubuntu/Desktop/meiMall/meiduo_mall')
-django.setup()
+# import os,sys
+# import django
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'meiduo_mall.settings.dev')
+# sys.path.insert(0, '/home/ubuntu/Desktop/meiMall/meiduo_mall')
+# django.setup()
 
 
 from django.template import loader
 from django.conf import settings
-from goods.models import GoodsChannel,\
+from apps.goods.models import GoodsChannel,\
     GoodsCategory,SKU,SKUImage,SKUSpecification,GoodsSpecification,SpecificationOption
 from collections import OrderedDict
 from copy import deepcopy
@@ -163,9 +163,9 @@ def generate_static_sku_detail_html(sku_id):
         f.write(sku_html_text)
 
 
-if __name__ == '__main__':
-    skus = SKU.objects.all()
-    for sku in skus:
-        print(sku.id)
-        generate_static_sku_detail_html(sku.id)
+# if __name__ == '__main__':
+#     skus = SKU.objects.all()
+#     for sku in skus:
+#         print(sku.id)
+#         generate_static_sku_detail_html(sku.id)
 

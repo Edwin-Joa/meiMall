@@ -4,10 +4,13 @@ from django.http import JsonResponse
 from django_redis import get_redis_connection
 from django.contrib.auth import login,authenticate,logout
 from .models import User
+from apps.goods.models import SKU
 import logging
 import json
 import re
 from meiduo_mall.celery_tasks.email.tasks import send_verify_email
+from apps.carts.utils import merge_cart_cookie_to_redis
+
 
 logger = logging.getLogger('django')
 # Create your views here.
@@ -116,6 +119,9 @@ class LoginView(View):
         response = JsonResponse({'code':0,'msg':'ok'})
         response.set_cookie('username',user.username,max_age=3600*24*14)
 
+        response = merge_cart_cookie_to_redis(request=request,user=user,response=response)
+
+
         return response
 
 
@@ -184,4 +190,48 @@ class VerifyEmailView(View):
             logger.error(e)
             return JsonResponse({'code':400,'errmsg':'激活邮件失败'})
         return JsonResponse({'code':0,'errmsg':'ok'})
+
+
+class UserBrowseHistory(View):
+    def post(self,request):
+        json_dict = json.loads(request.body.decode())
+        sku_id = json_dict.get('sku_id')
+        user_id = request.user.id
+        # 检验商品是否存在
+        try:
+            SKU.objects.filter(pk=sku_id)
+        except Exception as e:
+            return JsonResponse({'code':400,'errmsg':'商品已售罄'})
+
+        conn = get_redis_connection('history')
+        pl = conn.pipeline()
+
+        pl.lrem(f'history_{user_id}',0,sku_id)
+        pl.lpush(f'history_{user_id}',sku_id)
+        pl.ltrim(f'history_{user_id}',0,4)
+
+        pl.execute()
+
+        return JsonResponse({'code':0,'errmsg':'ok'})
+
+    def get(self,request):
+        conn = get_redis_connection('history')
+        sku_ids = conn.lrange(f'history_{request.user.id}',0,-1)
+
+        skus = []
+
+        for sku_id in sku_ids:
+            try:
+                sku = SKU.objects.get(pk=sku_id)
+            except Exception as e:
+                continue
+            skus.append({
+                'id':sku.id,
+                'name':sku.name,
+                'default_image_url':sku.default_image_url,
+                'price':sku.price
+            })
+
+        return JsonResponse({'code':0,'errmsg':'ok','skus':skus})
+
 

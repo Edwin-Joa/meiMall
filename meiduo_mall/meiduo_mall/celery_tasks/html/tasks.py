@@ -5,7 +5,7 @@ from django.template import loader
 import os,sys
 # sys.path.insert(0,'../../')
 
-from meiduo_mall.apps.goods.utils import get_categories,get_goods_and_spec
+from apps.goods.utils import get_categories,get_goods_and_spec
 from meiduo_mall.celery_tasks.main import celery_app
 
 

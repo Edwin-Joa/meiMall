@@ -63,11 +63,11 @@
     <a href="#" class="cart_name fl">我的购物车</a>
     <div class="goods_count fl" id="show_count">15</div>
     <ul class="cart_goods_show">
-        <li v-for="sku in carts">
-            <img :src="sku.default_image_url" alt="商品图片">
-            <h4>[[ sku.name ]]</h4>
-            <div>[[ sku.count ]]</div>
-        </li>
+		<li v-for="sku in carts">
+			<img :src="sku.default_image_url" alt="商品图片">
+			<h4>[[ sku.name ]]</h4>
+			<div>[[ sku.count ]]</div>
+		</li>
     </ul>
 </div>
 	
@@ -310,7 +310,7 @@
 			<div class="total">总价：<em>11388.00元</em></div>
 			<div class="operate_btn">
 				<a href="javascript:;" class="buy_btn">立即购买</a>
-				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
+				<a href="javascript:;" @click='add_cart' class="add_cart" id="add_cart">加入购物车</a>
 			</div>
 		</div>
 	</div>

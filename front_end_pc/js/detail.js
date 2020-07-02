@@ -27,7 +27,7 @@ var vm = new Vue({
             5: 'stars_five',
         }
     },
-    computed: {
+    computed:{
         sku_amount: function(){
             return (this.sku_price * this.sku_count).toFixed(2);
         }
@@ -35,6 +35,8 @@ var vm = new Vue({
     mounted: function(){
         // 添加用户浏览历史记录
         this.get_sku_id();
+
+        this.username = getCookie('username')
 
         axios.post(this.host+'/browse_histories/', {
             sku_id: this.sku_id
